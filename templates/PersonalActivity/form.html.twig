@@ -1,0 +1,387 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello ActivityController!{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow-lg">
+                <div class="card-header text-center bg-primary text-white">
+                    <h3>{{ editing ? 'Editar Actividad' : 'Crear Nueva Actividad' }}</h3>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+                    
+                    <div class="mb-3">
+                        {{ form_label(form.categoryActivity, 'Categoría de actividad') }}
+                        <div class="input-group">
+                            {{ form_widget(form.categoryActivity, {
+                                'attr': {'class': 'form-control', 'id': 'personal_activity_categoryActivity'},
+                                'value': activity.categoryActivity ? activity.categoryActivity.id :null
+                                }) }}
+                        </div>
+                        {{ form_errors(form.categoryActivity) }}
+                    </div>
+
+                    <div class="mb-3" id="subcategory-container">
+                        {{ form_label(form.subcategoryActivity, 'Subcategoría de la actividad')}}
+                        <div class="input-group">
+                            {{ form_widget(form.subcategoryActivity, {
+                                'attr': {'class': 'form-control', 'id': 'personal_activity_subcategoryActivity',
+                                'value' : activity.subcategoryActivity ? activity.subcategoryActivity.id : null
+                                }}) }}
+                        </div>
+                        {{ form_errors(form.subcategoryActivity)}}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.date, 'Fecha de la Actividad') }}
+                        <div class="input-group">
+                            {{ form_widget(form.date, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        {{ form_errors(form.date) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.name_activity, 'Nombre de la Actividad') }}
+                        <div class="input-group">
+                            {{ form_widget(form.name_activity, {'attr': {'class': 'form-control'}}) }}
+                        </div>
+                        {{ form_errors(form.name_activity) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.imagesActivity, 'Sube una foto de la actividad')}}
+                        {% if editing and form.vars.value.imagesActivity|length > 0 %}
+                            <div class="mb-2 text-center" id="current-image-container">
+                                <img src="{{ asset('uploads/activity_images/' ~ form.vars.value.imagesActivity[0].imageUrl) }}" alt="Imagen actual" class="img-thumbnail" style="max-height: 200px;">
+                            </div>
+                            {% if editing and form.delete_image is defined %}
+                                <div class="mb-3">
+                                    {{ form_row(form.delete_image, {'attr': {'id': 'delete-imagen-checkbox'} } )}}
+                                </div>
+                            {% endif %}
+                            <!--campo para subir nueva foto, solo sale si se marca borrar-->
+                            <div class="mb-3" id="upload-image-container" style="display: none;">
+                               {{ form_label(form.imagesActivity, 'Subir nueva foto')}}
+                               {{ form_widget(form.imagesActivity, {'attr': {'class': 'form-control'}}) }}
+                               {{ form_errors(form.imagesActivity) }}
+                            </div>
+                        {% else %} <!--si estás creando -->
+                            <div class="input-group">
+                                {{ form_widget(form.imagesActivity, {'attr': {'class': 'form-control'}}) }}
+                            </div>
+                            {{ form_errors(form.imagesActivity) }}
+                        {% endif %} 
+                    </div>
+                    
+                    <div>
+                    {{ form_label(form.companion, '¿Realizaste la actividad aompañado/a?')}}
+                        {% if editing %} 
+                            <div class="mb-3">
+                                <div class="input-group position-relative">
+                                    <input type="text" id="companion-search" class="form-control" placeholder="Buscar usuario" 
+                                        value="{{ editing and activity.companion ? activity.companion.name : ''}}">
+                                    <input type="hidden" id="personal_activity_companion" name="personal_activity[companion]"
+                                        value="{{ editing and activity.companion ? activity.companion.id : ''}}">
+                                        {{ form_widget(form.companion, {'attr': {'style': 'display: none;'} })}}
+                                    <ul id="user-list" class="list-group position-absolute w-100 d-none"
+                                        style="z-index: 1000; max-height: 200px; overflow-y: auto; left:0; top:100%; width: 250px; background-color: white;">
+                                    </ul>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="mb-3">
+                                <div class="input-group position-relative">
+                                    <input type="text" id="companion-search" class="form-control" placeholder="Buscar usuario">
+                                    <input type="hidden" id="personal_activity_companion" name="personal_activity[companion]">
+                                        {{ form_widget(form.companion, {'attr': {'style': 'display: none;'} })}}
+                                    <ul id="user-list" class="list-group position-absolute w-100 d-none"
+                                        style="z-index: 1000; max-height: 200px; overflow-y: auto; left:0; top:100%; width: 250px; background-color: white;">
+                                    </ul>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.comment, 'Comentario') }}
+                        <div class="input-group">
+                            {{ form_widget(form.comment, {'attr': {'class': 'form-control', 'rows': 3}}) }}
+                        </div>
+                        {{ form_errors(form.comment) }}
+                    </div>
+
+                    <div class="mb-3">
+                    {{ form_label(form.valoration, 'Valora la actividad')}}
+                        <div class="rating-container">
+                            <div class="valoration">
+                                <input id="radio5" type="radio" name="valoration" value="5">
+                                <label for="radio5"> <i class="fas fa-star"></i> </label>
+                                
+                                <input id="radio4" type="radio" name="valoration" value="4">
+                                <label for="radio4"> <i class="fas fa-star"></i> </label>
+                                
+                                <input id="radio3" type="radio" name="valoration" value="3">
+                                <label for="radio3"> <i class="fas fa-star"></i> </label>
+                                
+                                <input id="radio2" type="radio" name="valoration" value="2">
+                                <label for="radio2"> <i class="fas fa-star"></i> </label>
+                                
+                                <input id="radio1" type="radio" name="valoration" value="1">
+                                <label for="radio1"> <i class="fas fa-star"></i> </label>
+                            </div>
+                            {{ form_widget(form.valoration, {'attr': {'class': 'star-rating-input'}} )}}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.province, 'Provincia') }}
+                        <div class="input-group">
+                            {{ form_widget(form.province, {'attr': {'id': 'personal_activity_province', 'class': 'form-control'}}) }}
+                        </div>
+                        {{ form_errors(form.province) }}
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form_label(form.locality, 'Localidad') }}
+                        <div class="input-group">
+                            {{ form_widget(form.locality, {'attr': {'id': 'personal_activity_locality', 'class': 'form-control'}}) }}
+                            <ul id="locality-results" class="list-unstyled mt-2 custom-city-list"></ul>
+                        </div>
+                        {{ form_errors(form.locality) }}
+                    </div>
+
+                    <div class="text-center">
+                        <a href="{{ path('app_user_view__profile')}}" class="btn btn-outline-secondary">Cancelar</a>
+                        <button type="submit" class="btn btn-outline-primary">{{ editing ? 'Actualizar Actividad' : 'Crear Actividad' }}</button>
+                    </div>
+
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    //---------------------------------------------------------Selección de subcategorias-------------------------------
+    const categorySelect = document.querySelector('#personal_activity_categoryActivity');
+    const subcategorySelect = document.querySelector('#personal_activity_subcategoryActivity');
+
+    subcategorySelect.disabled = true;
+
+    categorySelect.addEventListener('change', function(){
+        const categoryId = this.value;
+
+    if(categoryId){
+
+        //petición ajax que llama al método del controlador CategoryController
+        fetch('/get-subcategories/' + categoryId)
+            .then(response => response.json())
+            .then(data =>{
+                subcategorySelect.disabled = false;
+                //rellenar las nuevas opciones
+                subcategorySelect.innerHTML = '<option value="" disabled selected>Selecciona una subcategoría</option>';
+                data.forEach(function (subcat) {
+                    const option = document.createElement('option');
+                    option.value = subcat.id;
+                    option.text = subcat.name;
+                    subcategorySelect.appendChild(option);
+                });
+            })
+            .catch(error =>{
+                subcategorySelect.innerHTML = '<option value="">Error al cargar</option>';
+                console.log('Error: ', error);
+            });
+            }else{
+                subcategorySelect.disabled = true;
+                subcategorySelect.innerHTML = '';
+            }
+
+    }); //cierre adeventListener change
+
+    //---------------------------------------------------Vincular provincias y localidades-------------------------
+    const provinceSelect = document.getElementById('personal_activity_province');
+    const localitySelect = document.getElementById('personal_activity_locality');
+
+    let userHasChangedProvince = false;
+
+    localitySelect.disabled = true;
+    
+    provinceSelect.addEventListener('change', function (){
+        userHasChangedProvince = true;
+
+        const provincesId = provinceSelect.value;
+
+        if(provincesId && userHasChangedProvince){
+            fetch (`/get-localities/${provincesId}`)
+                .then(response=> response.json())
+                .then(data =>{
+                    localitySelect.disabled = false;
+
+                    localitySelect.innerHTML = '<option value="" disabled selected>Seleccione tu localidad</option>';
+                    data.localities.forEach(locality => {
+                        const option = document.createElement('option');
+                        option.value = locality.id;
+                        option.textContent = locality.name;
+                        localitySelect.appendChild(option);
+                    });
+                })
+                .catch(error=> console.log('Error fetching data: ', error));
+        }else{
+            localitySelect.disabled = true;
+            localitySelect.innerHTML = '';
+        }
+
+    }); //cierre addEventlistener change
+
+//--------------------------------------------Estrellas de valoración--------------------------------
+    const ratingInputs = document.querySelectorAll('.valoration input');
+    const hiddenField = document.querySelector("input[name='personal_activity[valoration]']");
+
+    //Inciializar las estrellas al cargar la página cuando editas, obtienes el valor del campo oculto
+    const valoration = hiddenField.value;
+
+    //Si el valor de la valoración es un número entre 1 u 5, selecciona las estrellas correspondientes
+    if(valoration >=1 && valoration <=5){
+        ratingInputs.forEach(input=>{
+            if(input.value == valoration){
+                input.checked = true; //marcas la estrella correspondiente
+            }
+        });
+    }
+
+    //Actualizar valor del input cuando se cambie la valoración o cuando creas una valoración
+    ratingInputs.forEach(input=>{
+        input.addEventListener('change', function(){
+            hiddenField.value = this.value; //actualizas el valor del input oculto con el valor seleccionado
+        });
+    });
+
+    //----------------------------------------------------Acompañante-----------------------------
+    const companionIdInput = document.querySelector('#personal_activity_companion');
+    const userList = document.querySelector('#user-list');
+    const searchInput = document.querySelector('#companion-search');
+       
+    function updateUserList(users) {
+        userList.innerHTML = '';
+        
+        if (users.length === 0) {
+            const item = document.createElement('li');
+            item.classList.add('list-group-item', 'text-muted');
+            item.textContent = 'No se encontraron usuarios';
+            userList.appendChild(item);
+        } else {
+            users.forEach(user => {
+                const item = document.createElement('li');
+                item.classList.add('list-group-item', 'list-group-item-action');
+                item.textContent = `${user.userName} (${user.email})`;
+                item.dataset.id = user.id;
+
+                item.onclick = () => {
+                    searchInput.value = user.userName; //asignr el nombre del usu al input visible
+                    companionIdInput.value = user.id; //asignar el id del usuario al input oculto
+
+                    const symfonySelect = document.querySelector('select[name="personal_activity[companion]"]');
+                    if (symfonySelect) {
+                        symfonySelect.innerHTML = ''; // limpia cualquier opción previa
+                        const option = document.createElement('option');
+                        option.value = user.id;
+                        option.selected = true;
+                        symfonySelect.appendChild(option);
+                    }
+                    
+                    userList.classList.add('d-none'); //ocultar lista de usuarios
+                };
+
+            userList.appendChild(item);
+        });
+    }
+
+    userList.classList.toggle('d-none', users.length === 0);
+    
+    }
+    
+    searchInput.addEventListener('input', function () {
+        const query = searchInput.value.trim();
+        
+        if (query.length >= 2) {
+            fetch(`/user/search?query=${query}`)
+               .then(response => response.json())
+               .then(users => updateUserList(users))
+               .catch(error => console.log('Error al buscar usuarios:', error));
+        } else {
+            userList.classList.add('d-none');
+        }
+    });
+    
+    document.addEventListener('click', (e) => {
+        if (!searchInput.contains(e.target) && !userList.contains(e.target)) {
+            userList.classList.add('d-none');
+        }
+    });
+
+    //-----------------------------------Elegir acompañante con el teclado
+    let companionIndex = -1;
+    
+    searchInput.addEventListener('keydown', function(e){
+        let items = userList.querySelectorAll('.list-group-item');
+
+        if(items.length === 0) {
+            return; //si no hay elementos, no hace nada
+        }
+
+        if(e.key === 'ArrowDown'){
+            e.preventDefault();
+            companionIndex = (companionIndex +1) % items.length; //mueve al siguiente campo
+            highlightCompanion(items); //resalta el eleemto
+        }else if(e.key === 'ArrowUp'){
+            e.preventDefault();
+            companionIndex = (companionIndex - 1 + items.length) % items.length; //mover al anterior
+            highlightCompanion(items);
+        }else if(e.key === 'Enter' && companionIndex !== -1){
+            e.preventDefault();
+            items[companionIndex].click();
+        }
+
+    }); //cierre keydown
+
+    function highlightCompanion(items){
+        items.forEach((item, index)=>{
+            item.classList.toggle('active', index === companionIndex);
+        });
+    }
+
+    //------------------------------------Borrar imagen al editar actividad--------------------
+    const deleteImageCheckbox = document.querySelector('#{{form.delete_image.vars.id|default('')}}');
+    
+    if(deleteImageCheckbox){
+        const imageContainer = document.querySelector('#current-image-container');
+        const uploadImageContainer = document.querySelector('#upload-image-container');
+
+        deleteImageCheckbox.addEventListener('change', function(){
+            const isChecked = this.checked;
+
+            if(imageContainer){
+                imageContainer.style.display = isChecked ? 'none' : 'block';
+            }
+
+            if(uploadImageContainer){
+                uploadImageContainer.style.display = isChecked ? 'block' : 'none';
+            }
+
+            if(isChecked){
+                const fileInput = document.querySelector('input[name="personalActivity[imagesActivity]"]');
+                if(fileInput){
+                    fileInput.value = "";
+                }
+            }
+        });
+    }
+
+});//Ciere del addEvenlistener DOM
+</script>
+{% endblock %}

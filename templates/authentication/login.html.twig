@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Iniciar sesión{% endblock %}
+
+{% block body %}
+<div class="bg-light d-flex justify-content-center align-items-start py-5" style="min-height: 100vh;">
+    <div class="card shadow-sm rounded-4 border-0" style="max-width: 420px; width: 100%;">
+        <div class="card-body p-4">
+            
+            <div class="text-center mb-4">
+                <i class="fas fauser-circle fa-3x text-primary mb-2"></i>
+                <h3 class="fw-bold">Iniciar sesión</h3>
+            </div>
+
+            {% for message in app.flashes('success') %}
+                <div class="alert alert-success mb-3">
+                    {{ message }}
+                </div>
+            {% endfor %}
+
+            <form method="post">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Email</label>
+                    <input type="email" value="{{ last_username }}" name="_username" id="username" class="form-control form-control-lg" autocomplete="email" required autofocus>
+                </div>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label">Contraseña</label>
+                    <input type="password" name="_password" id="password" class="form-control form-control-lg" autocomplete="current-password" required>
+                </div>
+
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                <div class="d-flex justify-content-between align-items-center mt-4">
+                    <a href="{{ path('forgot_password') }}" class="small text-decoration-none">¿Olvidaste tu contraseña?</a>
+                    <button type="submit" class="btn btn-primary btn-lg px-4"><i class="fas fa-sign-in-alt me-1"></i>  Entrar</button>
+                </div>
+            </form>
+
+        </div>
+        <div class="card-footer text-center bg-white border-0">
+            <small class="text-muted"> ¿No tienes cuenta? <a href="{{ path('app_registration')}}" class="text-decoration-none">Regístrate!</a></small>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

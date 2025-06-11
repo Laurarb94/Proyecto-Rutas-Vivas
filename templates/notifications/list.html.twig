@@ -1,0 +1,159 @@
+{% extends 'base_user.html.twig' %}
+
+{% block title %} Notificaciones {% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+    <a href="{{ path('app_user_view__profile') }}" class="btn btn-outline-secondary btn-sm mb-3">
+        <i class="fas fa-arrow-left"></i> Volver
+    </a>
+
+    <h2 class="mb-4 text-center">Tus notificaciones</h2>
+
+    <div id="flash-messages" data-flashes='{{ app.session.flashBag.all()|json_encode|e('html_attr') }}'></div>
+
+    {% set unreadNotifications = notifications|filter(n => not n.isRead) %} {# Sin esto no filtrabas y por eso no se borraban las notificaciones!! #}
+    {% set readNotifications = notifications|filter(n => n.isRead) %}
+
+    {# SECCIÓN NOTIFICACIONES NO LEÍDAS#}
+    <section id="unread-section">
+        {% if unreadNotifications|length == 0 %}
+            <div class="alert alert-info text-center">No tienes notificaciones sin leer</div>
+        {% else %}
+            <div class="mx-auto" style="max-width: 720px;">
+
+            {% for notif in unreadNotifications %}
+                 <div class="card mb-3 shadow-sm border-0 {% if not notif.isRead %}border-start border-4 border-primary-subtle{% endif %}" id="notif-{{ notif.id}}">
+                    <div class="card-body d-flex justify-content-between align-items-start">
+                        <div class="d-flex align-items-start gap-3">
+                            <i class="fas fa-bell text-primary mt-1"></i>
+                            <div>
+                                <div class="fw-bold text-muted small mb-1">
+                                    {{ notif.createdAt|date('d/m/Y H:i') }}
+                                </div>
+                                <div>{{ notif.message }}</div>
+                            </div>
+                        </div>
+
+                        <div class="btn-group btn-group-sm align-self-center">
+
+                            {# 1. Solicitud pendiente (Aceptar/Recahzar) #}
+                            {% if notif.relatedFollow and notif.relatedFollow.status is same as(constant('App\\Entity\\UserFollow::STATUS_PENDING'))%}
+                                <a href="{{ path('user_follow_accept', {id: notif.relatedFollow.id}) }}" class="btn btn-sm btn-success me-1">Aceptar</a>
+                                <a href="{{ path('user_follow_reject', {id: notif.relatedFollow.id}) }}" class="btn btn-sm btn-danger">Rechazar</a>
+                            
+                            {# 2. Notificación para "seguir también" #}
+                            {% elseif notif.initiator and '¿Quieres seguirle también?' in notif.message %}
+                                <a href="{{ path('user_follow_reciprocate', {id:notif.id}) }}" class="btn btn-sm btn-primary" onclick="markAsRead({{ notif.id}})">Seguir también</a>
+                            
+                            {# 3. Ya gestionado #}
+                            {% elseif 'ha aceptado tu solicitud de seguimiento' in notif.message %}
+                                <span class="badge bg-success align-self-center">Solicitud gestionada</span>
+                            {% endif %}
+
+                        </div>
+
+                         <button type="button" class="btn-close ms-3" aria-label="Cerrar" onclick="markAsRead({{ notif.id }})"></button>
+                    
+                    </div>
+                </div>
+
+            {% endfor %}
+            </div>
+        {% endif %}
+    </section>
+
+    {#SECCIÓN NOTIFICACIONES LEÍDAS#}
+    {% if readNotifications|length > 0 %}
+        <hr class="my-5" />
+        <section id="read-section">
+            <h5 class="text-center text-muted mb-4">Notificaciones anteriores</h5>
+            <div class="mx-auto" style="max-width: 720px;">
+                {% for notif in readNotifications %}
+                    <div class="card mb-3 shadow-sm border-0 bg-light">
+                        <div class="card-body d-flex justify-content-between align-items-start">
+                            <div class="d-flex align-items-start gap-3">
+                                <i class="fas fa-bell text-muted mt-1"></i>
+                                <div>
+                                    <div class="fw-bold text-muted small mb-1">
+                                        {{ notif.createdAt|date('d/m/Y H:i') }}
+                                    </div>
+                                    <div>{{ notif.message }}</div>
+                                </div>
+                            </div>
+                            <span class="badge bg-secondary align-self-center">Leída</span>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+
+</div>
+
+<script>
+    function markAsRead(id){
+        fetch('/user/notification/read/' + id)
+            .then(response=> {
+                if(response.ok){
+                    const notifEl = document.getElementById('notif-' + id);
+                    if(notifEl) notifEl.remove();
+
+                    updateNotificationBadge();
+
+                    //verificar si hay más notificaciones visibles
+                    const remaining = document.querySelectorAll('.card[id^="notif-"]');
+
+                    //Si ya no hay notif, con innerhtml sacas el mensaje
+                    if(remaining.length === 0){
+                        const container = document.querySelector('.mx-auto');
+                        if(container) container.innerHTML = `<div class="alert alert-info text-center">No tienes notificaciones</div>`;
+                    }
+
+                }else{
+                    console.log('Fallo al marcar la notificación como leída');
+                }
+            })
+            .catch(error => console.log('Error al hacer fetch: ', error));
+    } //cierre función markAsRead
+
+    function updateNotificationBadge() {
+        const badge = document.querySelector('.notification-badge');
+        
+        if(badge){
+            let count = parseInt(badge.innerText);
+            if(!isNaN(count) && count > 0){
+                count --;
+                if(count <= 0){
+                    badge.remove();
+                }else{
+                    badge.innerText = count;
+                }
+            }
+        }
+        
+    }
+
+
+    //Mensajes flash con sweet alert
+    document.addEventListener('DOMContentLoaded', () => {
+        const flashContainer = document.getElementById('flash-messages');
+        if(!flashContainer) return;
+
+        const flashes = JSON.parse(flashContainer.dataset.flashes);
+        for(const [type, messages] of Object.entries(flashes)){
+            messages.forEach(message=>{
+                Swal.fire({
+                    icon: type === 'success' ? 'success' : type === 'warning' ? 'warning' : 'info',
+                    title: message,
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            });
+        }
+
+    }); //cierre dom
+
+</script>
+{% endblock %}

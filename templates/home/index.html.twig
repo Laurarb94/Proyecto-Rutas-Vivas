@@ -1,0 +1,154 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Bienvenido/a a Rutas Vivas{% endblock %}
+
+{% block body %}
+  <div class="container my-5">
+      <div class="row align-items-center mb-5">
+            <div class="col-md-6">
+              <h1 class="display-4 fw-bold mb-4">Explora. Comparte. Conecta</h1>
+              <p class="lead mb-4">Bienvenida, bienvenido, a <strong>Rutas vivas.</strong>
+                    <br />
+                    Rutas, aventuras y deporte para todos los estilos de vida. 
+                    Del mar a la montaña, pasando por la ciudad. 
+                    Deporte, naturaleza y adrenalina... en cualquier lugar.
+              </p>
+              
+              <div class="d-flex gap-3">
+                  <a href="{{ path('app_login')}}" class="btn btn-primary px-4">
+                      <i class="fas fa-sign-in-alt me-2"></i> Iniciar sesión
+                  </a>
+                  
+                  <a href="{{ path('app_registration')}}" class="btn btn-outline-primary px-4">
+                      <i class="fas fa-user-plus me-2"></i> Registrars 
+                  </a>
+              </div>
+            </div>
+            
+            <div class="col-md-6 text-center">
+                <img src="/images/hiking-illustration.jpg" alt="Ilustración de senderismo" class="home-img">
+            </div>
+      </div>
+
+      <div class="row text-center mt-5">
+          <div class="col-md-4 mb-4">
+              <i class="fas fa-route section-icon"></i>
+              <h4 class="section-title">Explora rutas y todo tipo de deportes </h4>
+              <p class="section-text">Encuentra la actividad física que se adapta a ti y descubre lugares increíbles cerca de ti.</p>
+          </div>
+
+          <div class="col-md-4 mb-4">
+              <i class="fas fa-camera section-icon"></i>
+              <h4 class="section-title">Comparte tus aventuras</h4>
+              <p class="section-text">Sube fotos y comenta tus experiencias para inspirar a otros usuarios.</p>
+          </div>
+          
+          <div class="col-md-4 mb-4">
+              <i class="fas fa-users section-icon"></i>
+              <h4 class="section-title">Conecta con otros</h4>
+              <p class="section-text">Sigue a otros aventureros y encuentra personas con tus mismos intereses.</p>
+          </div>
+      </div>
+  </div>
+
+
+
+
+{#
+<style>
+  .carousel-img {
+    height: 400px;
+    width: 600px;
+    object-fit: cover;
+  }
+</style>
+
+<div class="container-fluid vh-100 d-flex align-items-center">
+  <div class="row w-100 bg-dark bg-opacity-50 p-5 rounded">
+    <div class="col-md-6 d-none d-md-block">
+        <img src="/images/hiking-illustration.jpg" alt="Ilustración de senderismo" class="img-fluid rounded">
+    </div>
+    <div class="col-md-6 text-white d-flex flex-column justify-content-center">
+      <h1 class="display-4 fw-bold mb-4">Rutas Vivas</h1>
+      <p class="lead mb-4">
+        Descubre, comparte y explora rutas increíbles alrededor del mundo. Únete a nuestra comunidad de aventureros y vive la naturaleza como nunca antes.
+      </p>
+      <div class="d-flex gap-3">
+        <a href="{{ path('app_login') }}" class="btn btn-primary btn-lg px-4">
+          <i class="fas fa-sign-in-alt me-2"></i> Iniciar sesión
+        </a>
+        <a href="{{ path('app_registration')}}" class="btn btn-outline-light btn-lg px-4">
+           <i class="fas fa-user-plus me-2"></i> Registrarse
+        </a>
+        <!--<a href="https://deciding-gar-25.accounts.dev/sign-up" class="btn btn-outline-light btn-lg px-4">
+          <i class="fas fa-user-plus me-2"></i> Registrarse
+        </a>-->
+      </div>
+    </div>
+    
+  </div>
+</div>
+<div class="container my-5">
+    <div class="row align-items-center">
+       <!-- Descripción -->
+       <div class="col-md-6 order-md-1">
+        <h2 class="fw-bold mb-3">Mucho más que rutas</h2>
+        <p class="lead">
+          Además de rutas de senderismo, en <strong>Rutas Vivas</strong> encontrarás una gran variedad de actividades deportivas y al aire libre.
+        </p>
+        <p class="lead">
+          Únete a una comunidad que comparte la pasión por la naturaleza, la aventura y la vida activa al aire libre.
+        </p>
+      </div>
+      <!-- Carrusel -->
+      <div class="col-md-6 order-md-2 mb-4 mb-md-0">
+        <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">
+          <div class="carousel-indicators">
+            {% for i in 0..8 %}
+              <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="{{ i }}" {% if i == 0 %}class="active"{% endif %} aria-label="Slide {{ i + 1 }}"></button>
+            {% endfor %}
+          </div>
+          <div class="carousel-inner rounded shadow">
+            <div class="carousel-item active">
+              <img src="/images/carousel/activity1.jpg" class="d-block w-100 carousel-img" alt="Actividad 1">
+            </div>
+            <div class="carousel-item">
+              <img src="/images/carousel/activity2.jpg" class="d-block w-100 carousel-img" alt="Actividad 2">
+            </div>
+            <div class="carousel-item">
+              <img src="/images/carousel/activity3.jpg" class="d-block w-100 carousel-img" alt="Actividad 3">
+            </div>
+            <div class="carousel-item">
+              <img src="/images/carousel/activity4.jpg" class="d-block w-100 carousel-img" alt="Actividad 4">
+            </div>
+            <div class="carousel-item">
+              <img src="/images/carousel/activity5.jpg" class="d-block w-100 carousel-img" alt="Actividad 5">
+            </div>
+            <div class="carousel-item">
+              <img src="/images/carousel/activity6.jpg" class="d-block w-100 carousel-img" alt="Actividad 6">
+            </div>
+            <div class="carousel-item">
+              <img src="/images/carousel/activity7.jpg" class="d-block w-100 carousel-img" alt="Actividad 7">
+            </div>
+            <div class="carousel-item">
+              <img src="/images/carousel/activity8.jpg" class="d-block w-100 carousel-img" alt="Actividad 8">
+            </div>
+            <div class="carousel-item">
+              <img src="/images/carousel/activity9.jpg" class="d-block w-100 carousel-img" alt="Actividad 9">
+            </div>
+          </div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Anterior</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Siguiente</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+#}
+{% endblock %}

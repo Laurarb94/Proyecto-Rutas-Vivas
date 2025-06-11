@@ -1,0 +1,190 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Formulario de registro{% endblock %}
+
+{% block body %}
+
+<div class="container-fluid px-4">
+    <h1 class="mt-4 mb-4 text-center">Registro</h1>
+
+    <div class="card shadow-sm mb-4" style="max-width: 800px; margin: 0 auto;">
+        <div class="card-body">
+
+        <form method="post" action="{{ path('app_registration')}}" enctype="multipart/form-data">
+
+        {{ form_errors(registrationForm) }}
+				{{ form_start(registrationForm, {'attr': {'data-turbo': 'false'}}) }}
+
+				<h5 class="mt-3 mb-3 border-bottom pb-2">1. Datos de acceso</h5>
+				<div class="mb-3">
+					<label for="registrationForm_userName" class="form-label">Nombre de Usuario:</label>
+					{{ form_widget(registrationForm.userName, {'attr': {'class': 'form-control form-control-lg'}}) }}
+					
+					{% for error in registrationForm.userName.vars.errors %}
+					    <div class="alert alert-danger p-2 mt-1"> {{error.message}} </div>
+					{% endfor %}
+
+					<label for="registrationForm_email" class="form-label">Correo Electrónico:</label>
+					{{ form_widget(registrationForm.email, {'attr': {'class': 'form-control form-control-lg'}}) }}
+					
+					{% for error in registrationForm.email.vars.errors %}
+					    <div class="alert alert-danger p-2 mt-1"> {{error.message}} </div>
+					{% endfor %}
+				</div>
+
+				<h5 class="mt-4 mb-3 border-bottom pb-2">2. Datos personales</h5>
+				<div class="row">
+					<div class="col-md-6 mb-3">
+						<label for="registrationForm_name" class="form-label">Nombre:</label>
+						{{ form_widget(registrationForm.name, {'attr': {'class': 'form-control form-control-lg'}}) }}
+
+						{% for error in registrationForm.name.vars.errors %}
+							<div class="alert alert-danger p-2 mt-1">
+								{{error.message}}
+							</div>
+						{% endfor %}
+					</div>
+
+					<div class="col-md-6 mb-3">
+						<label for="registrationForm_firstLastName" class="form-label">Primer Apellido:</label>
+						{{ form_widget(registrationForm.firstLastName, {'attr': {'class': 'form-control form-control-lg'}}) }}
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-md-6 mb-3">
+						<label for="registrationForm_secondLastName" class="form-label">Segundo Apellido:</label>
+						{{ form_widget(registrationForm.secondLastName, {'attr': {'class': 'form-control form-control-lg'}}) }}
+					</div>
+					<div class="col-md-6 mb-3">
+						<label for="registrationForm_phone" class="form-label">Teléfono:</label>
+						{{ form_widget(registrationForm.phone, {'attr': {'class': 'form-control form-control-lg'}}) }}
+						
+						{% for error in registrationForm.phone.vars.errors %}
+						    <div class="alert alert-danger p-2 mt-1">
+							    {{error.message}}
+							</div>
+						{% endfor %}
+
+					</div>
+				</div>
+
+				<h5 class="mt-4 mb-3 border-bottom pb-2">3. Ubicación</h5>
+				<div class="mb-3">
+                    <label for="registrationForm_province" class="form-label">Provincia</label>
+					{{ form_widget(registrationForm.province, {'attr': {'id': 'registration_form_province', 'class': 'form-control form-control-lg', 'autocomplete':'off'}}) }}
+				</div>
+
+				<div class="mb-3">
+				    <label for="registrationForm_locality" class="form-label">Ciudad</label>
+					{{ form_widget(registrationForm.locality, {'attr': {'id': 'registration_form_locality', 'class': 'form-control form-control-lg', 'autocomplete': 'off'}}) }}
+					<ul id="locality-results" class="list-unstyled mt-2 custom-city-list"></ul>
+				</div>
+
+				<div class="mb-3">
+				    <label for="registrationForm_addres" class="form-label">Dirección</label>
+					{{ form_widget(registrationForm.addres, {'attr': {'class': 'form-control form-control-lg'} })}}
+				</div>
+
+				<h5 class="mt-4 mb-3 border-bottom pb-2">4. Información adicional</h5>
+				<div class="mb-3">
+					<label for="registrationForm_biography" class="form-label">Biografía</label>
+					{{ form_widget(registrationForm.biography, {'attr': {'class': 'form-control form-control-lg'}}) }}
+
+				</div>
+
+				<div class="mb-3">
+					<label for="registrationForm_photo" class="form-label">Foto</label>
+					{{ form_widget(registrationForm.photo, {'attr': {'class': 'form-control form-control-sm'}}) }}
+
+				</div>
+
+			    <h5 class="mt-4 mb-3 border-bottom pb-2">5. Seguridad y confirmación</h5>
+				<div class="mb-3">
+					<label for="registrationForm_plainPassword" class="form-label">Contraseña:</label>
+					{{ form_widget(registrationForm.plainPassword, {'attr': {'class': 'form-control form-control-lg'}}) }}
+
+					{% for error in registrationForm.plainPassword.vars.errors %}
+						<div class="alert alert-danger p-2 mt-1">
+							{{error.message}}
+						</div>
+					{% endfor %}
+				</div>
+
+				<div class="mb-3 form-check">
+					{{ form_widget(registrationForm.agreeTerms, {'attr': {'class': 'form-check-input'}}) }}
+					<label for="registrationForm_agreeTerms" class="form-check-label">Aceptar Términos</label>
+				</div>
+
+				<div class="d-flex justify-content-center">
+				    <button class="btn btn-primary text-center"> <i class="fas fa-user-plus"></i>   ¡Regístrate!</button>
+				</div>
+
+				{{ form_end(registrationForm) }}
+        </form>
+
+        </div>
+			    <div class="card-footer text-muted text-center">
+				    <small> <a href="{{ path('app_login') }}" class="text-decoration-none">¿Ya tienes cuenta? Inicia sesión aquí</a> </small>
+				</div>
+			</div>
+
+
+        </div><!--cierre card-body-->
+    </div> <!--cierre card-mb4-->
+
+</div> <!--cierre div contenedor-->
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const provinceSelect = document.getElementById('registration_form_province');
+    const localitySelect = document.getElementById('registration_form_locality');
+
+    //cuando pones bien el enctype/multipart symfony rellena automáticamente los campos y por esto no estaba funcionando, rellenaba automáticamnete aunque 
+	//el usuario no haya tocado nada. Haces esta variable para actualizarla sólo cuando el usuario realmente haya elegido una provincia, y el fetch sólo se va a hacer
+	//cuando esta variable sea true, es decir cuando el usu haya elegido realmente una provincia!
+	let userHasChangedProvince = false;
+
+	//Deshabilitar por defecto la localidad
+	localitySelect.disabled = true;
+    
+    provinceSelect.addEventListener('change', function(){
+		userHasChangedProvince = true;
+
+        const provincesId = provinceSelect.value;
+
+        if(provincesId && userHasChangedProvince){
+            console.log('Provincia id: ', provincesId);
+			console.log('Realizando petición a /get-localities/', provincesId);
+            fetch(`/get-localities/${provincesId}`) 
+                .then(response => response.json())
+                .then(data => {
+					console.log(data);
+
+					//habilitar select:
+					localitySelect.disabled = false;
+					//postalCodeSelect.disabled = false;
+
+                    // Llenar las localidades
+                    localitySelect.innerHTML = '<option value="" disabled selected>Seleccione tu localidad</option>'; //si no le pones el selected coge la primera ciudad por defecto!
+                    data.localities.forEach(locality => {
+                        const option = document.createElement('option');
+                        option.value = locality.id;
+                        option.textContent = locality.name;
+                        localitySelect.appendChild(option);
+                    });
+
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        } else {
+            // Si no hay una provincia seleccionada, deshabilita las opciones
+            localitySelect.disabled = true;
+			localitySelect.innerHTML = '';
+        }
+
+    }); // Cierre addEventListener provinceSelect
+
+}); // Cierre DOMContentLoaded
+
+</script>
+{% endblock %}

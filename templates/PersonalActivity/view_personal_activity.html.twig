@@ -1,0 +1,153 @@
+{% extends 'base_user.html.twig' %}
+
+{% block title %}Tus actividades {% endblock %}
+
+{% block content %}
+<div class="container">
+   <h2 class="text-center position-relative"> {{ personalActivity.nameActivity}}
+    
+    {# para que sólo salga la papelera si el usuario es el dueño de la actividad! si un usuario ve una actividad de otro no podrá borrarla!!
+    El volver te lleva a tu perfil#}
+    {% if app.user == personalActivity.user %}
+
+        <a href="{{ path('app_user_view__profile') }}" class="btn btn-outline-secondary btn-sm" style="position: absolute; left: 0; top: 0;">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+
+        <form method="post" action="{{ path('app_activity_delete', {'id': personalActivity.id}) }}" id="delete-form" style="position: absolute; right: 0; top: 0;">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ personalActivity.id) }}">
+            <button type="button" class="btn btn-outline-danger btn-sm" id="delete-btn">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+        </form>
+    {% endif %}
+
+    {#Si estás viendo las actividades de otro usuario, el volver te lleva a su perfil#}
+    {% if app.user != personalActivity.user %}
+        <a href="{{ path('user_view_other_profile', {'id': personalActivity.user.id})}}" class="btn btn-outline-secondary btn-sm" style="position: absolute; left: 0; top: 0;">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+    {% endif %}
+
+    </h2>
+    
+   <div class="card shadow-lg p-4 mb-4">
+      <div class="row">
+        <!-- Columna izquierda: detalles de la actividad -->
+        <div class="col-md-8 col-sm-12">
+           <h3 class="mb-4">Detalles de la actividad: </h3>
+
+           <div class="mb-3">
+                <strong>Categoría de la actividad: </strong>
+                <span id="categoryActivity"> {{ personalActivity.categoryActivity}} </span>
+           </div>
+
+           <div class="mb-3">
+                <strong>Subcategoría de la actividad: </strong>
+                <span id="subcategoryActivity"> {{ personalActivity.subcategoryActivity }} </span>
+           </div>
+
+           <div class="mb-3">
+                <strong>Nombre de la actividad: </strong>
+                <span id="name_activity"> {{ personalActivity.getNameActivity() }} </span>
+           </div>
+
+           <div class="mb-3">
+                <strong>Fecha de la actividad: </strong>
+                <span id="date"> {{ personalActivity.date|date('d/m/Y')}} </span>
+           </div>
+        </div>
+
+        <!-- Columna derecha: Imagen de la actividad -->
+        <div class="col-md-4 col-sm-12 text-center">
+            {% set iconKey = personalActivity.categoryActivity.name|lower|replace({
+                'á':'a', 'é':'e', 'í':'i', 'ó':'o', 'ú':'u', ' ':'_', 'ñ':'n'
+            }) %}
+            
+            {% if personalActivity.imagesActivity|length > 0 %}
+               <img src="{{ asset('uploads/activity_images/' ~ personalActivity.imagesActivity[0].imageUrl) }}" 
+                    alt="foto actividad" 
+                    class="img-fluid mb-2"
+                    style="width: 150px; height: 150px; object-fit: cover; border-radius: 50%">
+            {% else %}
+                <div class="d-flex align-items-center justify-content-center rounded-circle border bg-light mb-2"
+                    style="width: 150px; height: 150px">
+                    <i class="fas {{ categoryIcons[iconKey]|default('fa-question') }} fa-3x text-muted"></i>
+                </div>
+            {#
+                <img src="{{ asset('images/default.png') }}" 
+                    alt="Foto por defecto" 
+                    class="img-fluid mb-2" 
+                    style="width: 150px height: 150xpx; object-fit: cover; border-radius: 50%">
+            #} 
+            {% endif %}
+        </div>
+      </div>
+   </div>
+
+   <!-- Datos de interés de la actividad -->
+   <div class="card shadow-sm p-4 mb-4">
+       <h3>Datos de interés de la actividad</h3>
+       <div class="row">
+           <div class="col-md-6">
+               <strong>Acompañante de la actividad: </strong>
+               <span id="companion"> {{ personalActivity.companion}} </span>
+           </div>
+           <div class="col-md-6">
+               <strong>Valoración de la actividad: </strong>
+               <span id="valoration">
+                  {% for i in 1..5 %}
+                      {% if i <= personalActivity.valoration %}
+                          <i class="fas fa-star" style="color: gold;"></i>
+                      {% else %}
+                          <i class="far fa-star" style="color: gold;"></i>
+                      {% endif %}
+                  {% endfor %}
+               </span>
+           </div>
+           <div class="col-md-6" style="text-align:justify">
+               <strong>Comentario sobre la actividad: </strong>
+               <span id="comment"> {{ personalActivity.comment}} </span>
+           </div>
+       </div>
+   </div>
+
+   <!-- Datos de ubicación -->
+   <div class="card shadow-sm p-4 mb-4">
+       <h3>Datos de ubicación</h3>
+       <div class="row">
+           <div class="col-md-6">
+               <strong>Provincia: </strong>
+               <span id="province"> {{ personalActivity.province }} </span>
+           </div>
+           <div class="col-md-6">
+               <strong>Localidad: </strong>
+               <span id="locality"> {{ personalActivity.locality}} </span>
+           </div>
+       </div>
+   </div>
+
+</div>
+
+<script>
+document.getElementById('delete-btn').addEventListener('click', function(event){
+    event.preventDefault();
+
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: 'Esta acción no se puede deshacer, perderás tus datos de actividad',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+        reverseButtons: true
+    }).then((result)=>{
+        if(result.isConfirmed){
+            document.getElementById('delete-form').submit();
+        }
+    });
+});
+
+
+</script>
+{% endblock %}

@@ -1,0 +1,198 @@
+{#% extends 'base.html.twig' %}
+
+{% block title %}Completa tu perfil {% endblock %}
+
+{% block body %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <div class="card shadow-lg rounded-4 border-0">
+                <div class="card-body p-5">
+                    <h2 class="text-center mb-4">Completa tu perfil</h2>
+
+                    {{ form_start(registrationForm, {
+                        method: 'POST',
+                        action: path('app_complete_registration'),
+                        enctype: 'multipart/form-data',
+                        attr: {
+                            'data-turbo': 'false',
+                            'data-no-turbo': 'true'
+                        }
+                    }) }}
+
+
+                    <!---Datos que vienen de Clerk:-->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Email</label>
+                        <p class="form-control-plaintext"> {{app.user.email}} </p>
+                    </div>
+                    
+                    <!---Viene de Clerk pero el usuario puede editarlos si quiere-->
+                    <h5 class="mb-3 mt-4">Datos personales</h5>
+
+                    <div class= "mb-3">
+				        <label for="registrationForm_name" class="form-label">Nombre:</label>
+					        {{ form_widget(registrationForm.name, {'attr': {'class': 'form-control form-control-lg'}}) }}
+
+					        {% for error in registrationForm.name.vars.errors %}
+						        <div class="alert alert-danger p-2 mt-1"> {{error.message}} </div>
+					        {% endfor %}
+			        </div>
+                    
+                    <div class="mb-3">
+				        <label for="registrationForm_firstLastName" class="form-label">Primer Apellido:</label>
+				        {{ form_widget(registrationForm.firstLastName, {'attr': {'class': 'form-control form-control-lg'}}) }}
+			        </div>
+
+                    <!---Rellenar datos que no vienen de Clerk: -->
+			        <div class="mb-3">
+				        <label for="registrationForm_secondLastName" class="form-label">Segundo Apellido:</label>
+				        {{ form_widget(registrationForm.secondLastName, {'attr': {'class': 'form-control form-control-lg'}}) }}
+			        </div>
+			
+                    <div class="mb-3">
+				        <label for="registrationForm_phone" class="form-label">Teléfono:</label>
+				        {{ form_widget(registrationForm.phone, {'attr': {'class': 'form-control form-control-lg'}}) }}
+						
+				        {% for error in registrationForm.phone.vars.errors %}
+					        <div class="alert alert-danger p-2 mt-1"> {{error.message}} </div>
+				        {% endfor %}
+			        </div>
+
+                    <div class="mb-3">
+				        <label for="registrationForm_biography" class="form-label">Biografía</label>
+				        {{ form_widget(registrationForm.biography, {'attr': {'class': 'form-control form-control-lg'}}) }}
+			        </div>
+
+                    <h5 class="mb-3 mt-4">Localización</h5>
+
+			        <div class="mb-3">
+                        <label for="registrationForm_province" class="form-label">Provincia</label>
+				        {{ form_widget(registrationForm.province, {'attr': {'id': 'registration_form_province', 'class': 'form-control form-control-lg', 'autocomplete':'off'}}) }}
+			        </div>
+
+			        <div class="mb-3">
+				        <label for="registrationForm_locality" class="form-label">Ciudad</label>
+				        {{ form_widget(registrationForm.locality, {'attr': {'id': 'registration_form_locality', 'class': 'form-control form-control-lg', 'autocomplete': 'off'}}) }}
+				        <ul id="locality-results" class="list-unstyled mt-2 custom-city-list"></ul>
+			        </div>
+
+                    <div class="mb-3">
+				        <label for="registrationForm_addres" class="form-label">Dirección</label>
+				        {{ form_widget(registrationForm.addres, {'attr': {'class': 'form-control form-control-lg'} })}}
+			        </div>
+
+                    <h5 class="mb-3 mt-4">Imagen de perfil</h5>
+
+                    {% if app.user.photo %}
+                        <div class="mb-3 text-center">
+                            <img src="{{ app.user.photo }}" alt="Foto de perfil" class="rounded-circle" style="width: 150px; height: 150px; object-fit: cover;">
+                            <p class="text-muted mt-2">Imagen actual.</p>
+                            <button type="button" class="btn btn-outline-secondary" id="change-photo-btn">Cambiar foto</button>
+                        </div>
+                    {% endif %}
+
+			        <div class="mb-3" id="photo-upload-field" style="display: none;">
+				        <label for="registrationForm_photo" class="form-label">Nueva foto</label>
+				        {{ form_widget(registrationForm.photo, {'attr': {'class': 'form-control form-control-sm'}}) }}
+			        </div>
+
+                    <div class="d-flex justify-content-center">
+				        <button type="submit" class="btn btn-primary text-center"> <i class="fas fa-check"></i>   Guardar cambios</button>
+			        </div>
+    
+                    {{ form_end(registrationForm)}} 
+
+                </div><!--cierre card body-->
+            </div><!--cierre card-->
+        </div><!--cierre col-->
+    </div><!--cierre row-->
+</div> <!--cierre container-->
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const provinceSelect = document.getElementById('registration_form_province');
+    const localitySelect = document.getElementById('registration_form_locality');
+
+	let userHasChangedProvince = false;
+
+	//Deshabilitar por defecto la localidad
+	localitySelect.disabled = true;
+    
+    provinceSelect.addEventListener('change', function(){
+		userHasChangedProvince = true;
+
+        const provincesId = provinceSelect.value;
+
+        if(provincesId && userHasChangedProvince){
+            console.log('Provincia id: ', provincesId);
+			console.log('Realizando petición a /get-localities/', provincesId);
+            fetch(`/get-localities/${provincesId}`) 
+                .then(response => response.json())
+                .then(data => {
+					console.log(data);
+
+					//habilitar select:
+					localitySelect.disabled = false;
+					//postalCodeSelect.disabled = false;
+
+                    // Llenar las localidades
+                    localitySelect.innerHTML = '<option value="" disabled selected>Seleccione tu localidad</option>'; //si no le pones el selected coge la primera ciudad por defecto!
+                    data.localities.forEach(locality => {
+                        const option = document.createElement('option');
+                        option.value = locality.id;
+                        option.textContent = locality.name;
+                        localitySelect.appendChild(option);
+                    });
+
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        } else {
+            // Si no hay una provincia seleccionada, deshabilita las opciones
+            localitySelect.disabled = true;
+			localitySelect.innerHTML = '';
+        }
+
+    }); // Cierre addEventListener provinceSelect
+
+    /*---------------------------Subir una nueva foto--------------------------*/
+    const changePhotoBtn = document.getElementById('change-photo-btn');
+    const uploadField = document.getElementById('photo-upload-field');
+
+    if(changePhotoBtn && uploadField){
+        changePhotoBtn.addEventListener('click', function(){
+            uploadField.style.display = 'block';
+            changePhotoBtn.style.display = 'none';
+        });
+    }
+
+    /*-----------------------Pasar de nuevo el token jwt--------------------------*/
+    window.addEventListener('load', async () => {
+        await Clerk.load();
+        
+        const token = await Clerk.session.getToken({ template: 'symfony-jwt' });
+        
+        // Guarda el token por si se necesita después
+        if (token) sessionStorage.setItem('jwt', token);
+        
+        // Adjunta token al formulario 
+        const form = document.querySelector('form');
+        if(!form){
+            console.log('FFORMULARIO NO ENCONTRADO EN DOM');
+            return;
+        }
+
+        
+        form.addEventListener('submit', function (e) {
+            console.log('El formulario está siendo enviado');
+        });
+        
+  
+
+    });
+
+}); // Cierre DOMContentLoaded
+
+</script>
+
+{% endblock %#}

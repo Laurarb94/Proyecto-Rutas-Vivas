@@ -1,0 +1,70 @@
+{% extends 'base_user.html.twig' %}
+
+{% block title %}Explorar usuarios {% endblock %}
+
+{% block content %}
+<div class="container my-5">
+
+    <a href="{{ path('app_user_view__profile') }}" class="btn btn-outline-secondary btn-sm mb-3">
+        <i class="fas fa-arrow-left"></i> Volver
+    </a>
+
+    <h2 class="mb-4 text-center">Personas que podrías conocer</h2>
+
+    {% if users is empty %}
+        <p class="text-center text-muted">No hay usuarios disponibles por ahora.</p>
+    {% else %}
+        <div id="userCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+
+                {% for group in users|batch(3, null) %}
+                    <div class="carousel-item {% if loop.first %}active{% endif %}">
+                        <div class="row justify-content-center">
+                            {% for u in group %}
+                                {% if u %}
+                                    <div class="col-md-3 mb-3">
+                                        <div class="card user-card h-100 text-center shadow-sm">
+                                            <a href="{{ path('user_view_other_profile', {id: u.id}) }}">
+                                                <img src="{{ asset(u.photo ? 'uploads/profile_photos/' ~ u.photo : 'images/default.png') }}"
+                                                    alt="Foto de perfil"
+                                                    class="rounded-circle mx-auto mt-4"
+                                                    style="width: 100px; height: 100px; object-fit: cover;">
+                                            </a>
+                                            <div class="card-body">
+                                                <h5 class="card-title">{{ u.userName }}</h5>
+
+                                                {% if u.id in acceptedFollowedIds %}
+                                                    <button class="btn btn-outline-secondary btn-sm w-100" disabled-btn>Siguiendo</button>
+                                                {% elseif u.id in pendingFollowedIds %}
+                                                    <button class="btn btn-outline-warning btn-sm w-100" disabled-btn>Solicitud enviada</button>
+                                                {% elseif u.id in pendingReceivedFollowerIds %}
+                                                    <button class="btn btn-outline-info btn-sm w-100" disabled>Ha solicitado seguirte</button>
+                                                {% else %}
+                                                    <a href="{{ path('user_follow', {id: u.id}) }}" class="btn btn-outline-primary btn-sm w-100">Seguir</a>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+
+            </div>
+
+            <!-- Controles del carrusel -->
+            <button class="carousel-control-prev" type="button" data-bs-target="#userCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Anterior</span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#userCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Siguiente</span>
+            </button>
+        </div>
+
+    {% endif %}
+</div>
+
+{% endblock %}

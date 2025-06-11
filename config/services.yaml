@@ -1,0 +1,51 @@
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
+parameters:
+    mailer_from: '%env(MAILER_FROM)%'
+    activity_images_path: '%kernel.project_dir%/public/uploads/activity_images'
+    activity_images_url: '/uploads/activity_images'
+
+    admin_emails:
+        - 'admin1@gmail.com'
+        - 'admin2@gmail.com'
+        - 'admin3@gmail.com'
+        - 'admin4@gmail.com'
+        - 'admin5@gmail.com'
+        - 'admin6@gmail.com'
+        - 'admin7@gmail.com'
+        - 'admin8@gmail.com'
+        - 'admin9@gmail.com'
+        - 'admin10@gmail.com'
+
+    vip_emails:
+        - 'vip1@gmail.com'
+        - 'vip2@gmail.com'
+        - 'vip3@gmail.com'
+        - 'vip4@gmail.com'
+        - 'vip5@gmail.com'
+        - 'vip6@gmail.com'
+        - 'vip7@gmail.com'
+        - 'vip8@gmail.com'
+        - 'vip9@gmail.com'
+        - 'vip10@gmail.com'
+
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
+    # makes classes in src/ available to be used as services
+    # this creates a service per class whose id is the fully-qualified class name
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Entity/'
+            - '../src/Kernel.php'
+
+    # add more service definitions when explicit configuration is needed
+    # please note that last definitions always *replace* previous ones

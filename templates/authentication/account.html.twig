@@ -1,0 +1,28 @@
+{#% extends 'base_user.html.twig' %}
+
+{% block title%}Tu cuenta{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <a href="{{ path('app_user_view__profile') }}" class="btn btn-outline-secondary btn-sm mb-3">
+            <i class="fas fa-arrow-left"></i> Volver
+  </a>
+  <h2 class="mb-4">Configuración de tu cuenta</h2>
+  <div id="user-profile"></div>
+
+</div>
+
+<script async crossorigin
+    src="https://deciding-gar-25.accounts.dev/npm/@clerk/clerk-js@4/dist/clerk.browser.js"
+    data-clerk-publishable-key="pk_test_ZGVjaWRpbmctZ2FyLTI1LmNsZXJrLmFjY291bnRzLmRldiQ">
+</script>
+
+<script>
+  window.addEventListener("load", async () => {
+    await Clerk.load();
+    Clerk.mountUserProfile(document.getElementById("user-profile"));
+  });
+</script>
+
+
+{% endblock %#}

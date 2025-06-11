@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Activación {% endblock %}
+
+{% block body %}
+
+<div class="container-fluid d-flex justify-content-center align-items-center" style="min-height:50vh;">
+    <div class="card" style="max-width: 500px; width: 100%;">
+        <div class="card-body text-center">
+            <h1 class="card-title mb-4">Tu cuenta está casi lista</h1>
+            <p class="card-text mb-4">Por favor, revisa tu bandeja de entrada.Te hemos enviado un mail para activar tu cuenta. Gracias!!</p>
+
+            <!--Sin enviar correo
+            <a href="{#{ activationLink }#}" class="btn btn-primary btn-lg">Activar cuenta</a>
+            -->
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

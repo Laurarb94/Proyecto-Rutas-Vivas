@@ -1,0 +1,101 @@
+{#% extends 'base.html.twig' %}
+
+{% block title %} Iniciar sesión {% endblock %}
+
+{% block body %}
+<div class="container d-flex align-items-center justify-content-center min-vh-100">
+    <div class="text-center w-100" style="max-width: 600px;">
+        <h2 class="fw-bold mb-3">Bienvenido/a</h2>
+        <p class="text-muted mb-4">Iniciar sesión</p>
+      
+      <div id="sign-in" class="mb-4 d-flex justify-content-center"></div>
+
+      <div class="text-center d-none" id="loadingSpinner">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+        <p class="mt-2 text-muted">Redirigiendo...</p>
+      </div>
+    </div>
+</div>
+   
+    <script async crossorigin="anonymous"
+        src="https://deciding-gar-25.accounts.dev/npm/@clerk/clerk-js@4/dist/clerk.browser.js"
+        data-clerk-publishable-key="pk_test_ZGVjaWRpbmctZ2FyLTI1LmNsZXJrLmFjY291bnRzLmRldiQ">
+    </script>
+   
+<script>
+
+window.addEventListener("load", async () => {
+    await Clerk.load();
+
+    const session = Clerk.session;
+    if (!session || !session.id) {
+        Clerk.mountSignIn(document.getElementById("sign-in"), {
+            afterSignInUrl: "/user/view_profile"
+        });
+    }else {
+        await handleRedirectAfterLogin();
+    }
+
+    const interval = setInterval(async () => {
+        const session = Clerk.session;
+        if (session && session.id) {
+            clearInterval(interval);
+            await handleRedirectAfterLogin();
+        }
+    }, 1000);
+});
+
+async function handleRedirectAfterLogin() {
+    const signInDiv = document.getElementById('sign-in');
+    const spinnerDiv = document.getElementById('loadingSpinner');
+
+    if (signInDiv) signInDiv.classList.add('d-none');
+    if (spinnerDiv) spinnerDiv.classList.remove('d-none');
+
+    try {
+        const token = await Clerk.session.getToken({ template: 'front' });
+
+        if (!token) {
+            console.log("No se ha obtenido token JWT tras la sesión");
+            return;
+        }
+
+        //Añades cookie para que se guadre y no tener que actualizar el token acad vez que cambies de página
+        document.cookie = `jwt_token=${token}; path=/; SameSite=Lax; `; 
+
+
+        const response = await fetch("{{ absolute_url(path('app_user_view__profile')) }}", {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: "text/html"
+            }
+        });
+
+        if (!response.ok) {
+            console.error("Error al redirigir:", response.status);
+            const errorText = await response.text();
+            console.log(errorText);
+            return;
+        }
+
+        const html = await response.text();
+
+        // Cambiar la URL manualmente sin recargar
+       // history.pushState({}, '', '{{ path("app_user_view__profile") }}');
+       history.pushState({}, '', '{{ absolute_url(path("app_user_view__profile")) }}');
+
+        // Escribir el HTML del perfil
+        document.open();
+        document.write(html);
+        document.close();
+
+    } catch (error) {
+        console.error("Error al redirigir tras login:", error);
+    }
+}
+
+</script>
+
+{% endblock %#}

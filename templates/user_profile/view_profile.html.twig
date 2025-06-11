@@ -1,0 +1,159 @@
+{% extends 'base_user.html.twig' %}
+
+{% block title %}Perfil de usuario{% endblock %}
+
+{% block content %}
+
+    <!--Mensaje flash de éxito para cuando cambias la contraseña: al cambiar la contraseña, te lleva a la página del usuario y el mensaje saldrá aquí. Sin clerk-->
+    <!--Mensjae flash de éxito cuando modificas, creas y eliminas una actividad!-->
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+    
+
+    <!---Mensaje flash para cuando el usuario viene del registro y aún no tiene el perfil completo-->
+    {% for message in app.flashes('warning') %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            {{ message|raw }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+
+
+   <!-- Perfil de usuario y actividades -->
+            <div class="row">
+                
+                <!-- Columna de perfil -->
+                <div class="col-md-4">
+                    <div class="card">
+                        
+                        {% if app.user.photo %}
+                            <img src="{{ asset('uploads/profile_photos/' ~ app.user.photo) }}" alt="Foto de perfil" class="card-img-top profile-photo">
+                        {% else %}
+                            <img src="{{ asset('images/default.png') }}" alt="Foto de perfil" class="card-img-top profile-photo">
+                        {% endif %}
+                        
+                        {# CON CLERK
+                        <img id="user-avatar" class="card-img-top profile-photo d-none" alt="Foto de perfil">
+                        #}
+
+                        <div class="card-body">
+                            <h5 class="card-title"> {{app.user.name}} </h5>
+                            <p class="card-text" style="text-align: justify;"> {{app.user.biography}} </p>
+                        </div>
+                        
+                    </div>
+                </div>
+
+                  <!-- Columna de actividades -->
+                <div class="col-md-8">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5 class="card-title">Actividades Completadas</h5>
+                            </div>
+                            <div class="d-flex flex-wrap gap-3 justify-content-start">
+                            
+                                {% for activity in completedActivities %}
+                                
+                                    <div class="text-center activity-item">
+                                      {% set iconKey = activity.categoryActivity.name|lower|replace({'á':'a','é':'e','í':'i','ó':'o','ú':'u',' ':'_', 'ñ':'n'}) %}
+                                        
+                                        {% if activity.imagesActivity|length > 0 %}
+                                        <div class="img-container">
+                                            <img src="{{ asset('uploads/activity_images/' ~ activity.imagesActivity[0].imageUrl) }}" class="rounded-circle" alt="actividad" style="width: 150px; height: 150px; object-fit: cover;">
+                                            
+                                            <div class="icon-overplay">
+                                               <a href="{{ path('app_view_activities', { id: activity.id }) }}" class="icon-btn"> <i class="fas fa-eye"></i> </a>
+                                               
+                                               <a href="{{ path('edit_activity', {'id': activity.id})}}" class="icon-btn"> <i class="fas fa-pen"></i></a>
+                                            </div>
+
+                                        </div>
+                                        {% else %}
+                                        <div class="img-container d-flex align-items-center justify-content-center rounded-circle border bg-light" style="width: 150px; height: 150px;">
+                                            <i class="fas {{ categoryIcons[iconKey]|default('fa-question') }} fa-3x text-muted"></i>
+
+                                            <div class="icon-overplay">
+                                                <a href="{{ path('app_view_activities', { id: activity.id }) }}" class="icon-btn"> <i class="fas fa-eye"></i> </a>
+                                                <a href="{{ path('edit_activity', {'id': activity.id})}}" class="icon-btn"> <i class="fas fa-pen"></i></a>
+                                            </div>
+
+                                        </div>
+                                        {% endif %}
+                                        </a>
+                                        <p class="small">{{ activity.getNameActivity() }}</p>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                       <div class="card-body">
+                           <h5 class="card-title">Explora las actividades</h5>
+                           <div class="flex-activities">
+                               {% for category in categories %}
+                                  {#Normalizar el nombre de la cat para poder usarlo como clave en el array de iconos. Si no, no coge el icono y sale el defaul siempre#}
+                                  {% set iconKey = category.name|lower|replace({'á':'a', 'é':'e', 'í':'i', 'ó':'o', 'ú':'u', ' ':'_', 'ñ':'n'}) %}
+                                  
+                                    <!--Dropdown para que salgan las categorías monas-->
+                                    <div class="dropdown">
+                                        <div class="category-link" data-id="{{ category.id}}" data-bs-toggle="dropdown" aria-expanded="false" style="cursos:pointer;">
+                                            <div class="rounded-circle border border-primary text-primary d-flex align-items-center justify-content-center category-icon" style="width: 100px; height: 100px;">
+                                                <i class="fas {{ categoryIcons[iconKey]|default('fa-question') }} fa-2x"></i>
+                                            </div>
+                                            <p class="small mt-2" style="text-align:center;"> {{category.name}} </p>
+                                        </div>
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ category.id }}">
+                                            {% for subcategory in category.subcategories %}
+                                                <li>
+                                                    <a class="dropdown-item subcategory-card" data-id="{{ subcategory.id }}" data-category-id="{{ category.id}}" href="#"> {{ subcategory.name }} </a>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                               {% endfor %}
+                           </div>
+                       </div>
+                    </div>
+                </div>
+           
+            </div><!--Fin div class row del perfil de usuario y actividades-->
+        </div><!--Fin div class container-->
+
+<script async crossorigin="anonymous"
+    src="https://deciding-gar-25.accounts.dev/npm/@clerk/clerk-js@4/dist/clerk.browser.js"
+    data-clerk-publishable-key="pk_test_ZGVjaWRpbmctZ2FyLTI1LmNsZXJrLmFjY291bnRzLmRldiQ">
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', async () => { 
+    await Clerk.load();
+
+    const user = await Clerk.user;
+    const avatar = document.getElementById('user-avatar');
+
+    if(user && avatar){
+        avatar.src = user.imageUrl || '/images/default.png';
+        avatar.classList.remove('d-none'); //mostrar img solo cuando esté lista
+    }
+
+    /*---------------------Redirigiri para crear actividad*/
+    const createActivityUrl = '{{ path("app_activity_new")}}';
+
+    document.querySelectorAll('.subcategory-card').forEach(card => {
+        card.addEventListener('click', (e) => {
+            e.preventDefault();
+            const subcatId = card.dataset.id;
+            const catId = card.dataset.categoryId;
+            window.location.href = `${createActivityUrl}?categoryActivity=${catId}&subcategoryActivity=${subcatId}`;
+        });
+    });
+
+}); //cierre DOM
+</script>
+{% endblock %}

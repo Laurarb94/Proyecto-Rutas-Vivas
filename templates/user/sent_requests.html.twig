@@ -1,0 +1,39 @@
+{% extends 'base_user.html.twig' %}
+
+{% block title %} Solicitudes enviadas {% endblock %}
+
+{% block content %}
+<div class="container my-5">
+
+    <a href="{{ path('app_user_view__profile') }}" class="btn btn-outline-secondary btn-sm mb-3">
+        <i class="fas fa-arrow-left"></i> Volver
+    </a>
+
+    <h2 class="mb-4 text-center">Solicitudes de seguimiento enviadas</h2>
+        {% if sentRequests is empty %}
+            <p class="text-center text-muted"> No has eniviado ninguna solicitud aún</p>
+        {% else %}
+            <div class="row">
+                {% for user in sentRequests %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card user-card h-100 text-center shadow-sm">
+                           <a href="{{ path('user_view_other_profile', {id: user.id}) }}">
+                                <img src="{{ asset(user.photo ? 'uploads/profile_photos/' ~ user.photo : 'images/default.png') }}"
+                                    alt="Foto de perfil"
+                                    class="rounded-circle mx-auto mt-4"
+                                    style="width: 100px; height: 100px; object-fit: cover;">
+                            </a>
+
+                           <div class="card-body">
+                               <h5 class="card-title"> {{ user.userName}} </h5>
+                               <p class="text-muted"> Has solicitado seguir a {{ user.userName}}. 
+                               <br />
+                               <i class="fas fa-clock"></i> A la espera de su confirmación </p>
+                           </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+</div>
+{% endblock %}

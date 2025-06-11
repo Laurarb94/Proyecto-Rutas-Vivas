@@ -1,0 +1,44 @@
+{% extends 'base_user.html.twig' %}
+
+{% block title %} Amigos {% endblock %}
+
+{% block content %}
+<div class="container my-5">
+
+    <a href="{{ path('app_user_view__profile') }}" class="btn btn-outline-secondary btn-sm mb-3">
+        <i class="fas fa-arrow-left"></i> Volver
+    </a>
+
+    <h2 class="mb-4 text-center">Tus amigos</h2>
+
+    {% if friends is empty %}
+        <p class="text-center text-muted"> Aún no tienes amigos </p>
+    {% else %}
+        <div class="row">
+            {% for friend in friends %}
+                {% set u = friend.user %}
+                <div class="col-md-4 mb-3">
+                    <div class="card user-card h-100 text-center shadow-sm">
+                        <a href="{{ path('user_view_other_profile', {id: u.id}) }}">
+                            <img src="{{ asset(u.photo ? 'uploads/profile_photos/' ~ u.photo : 'images/default.png')}}"
+                                alt = "Foto de perfil"
+                                class="rounded-circle mx-auto mt-4"
+                                style="width: 100px; height: 100px; object-fit: cover;">
+                        </a>
+                        <div class="card-body">
+                           <h5 class="card-title"> {{ u.userName}} </h5>
+                           {% if friend.isMutual %}
+                               <p class="text-success"> Sois amigos </p>
+                            {% else %}
+                                <p class="text-warning"> Sigues a {{ u.userName}} pero aún no te sigue </p>
+                            {% endif %}
+                           {# <h5 class="card-title"> {{ friend.userName}} </h5>
+                            <p class="text-muted"> Ya sois amigos </a> #}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

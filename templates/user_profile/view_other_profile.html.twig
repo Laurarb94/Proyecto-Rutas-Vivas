@@ -1,0 +1,163 @@
+{% extends 'base_user.html.twig' %}
+
+{% block title %}Perfil de {{user.userName}} {% endblock %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+
+    <a href="{{ path('user_friends') }}" class="btn btn-outline-secondary btn-sm mb-3">
+        <i class="fas fa-arrow-left"></i> Volver
+    </a>
+
+    <div class="card p-4 shadow-sm">
+        <div class="row align-items-center">
+            <div class="col-md-3 text-center mb-3 mb-md-0">
+                <img src="{{ asset(user.photo ? 'uploads/profile_photos/' ~ user.photo : 'images/default.png') }}"
+                    class="rounded-circle shadow"
+                    style="width: 180px; height: 180px; object-fit: cover;">
+                {% if user != app.user and not follow %}
+                    <a href="{{ path('user_follow', {id: user.id}) }}" class="btn btn-outline-primary btn-sm mt-3">Seguir</a>
+                {% endif %}
+            </div>
+            <div class="col-md-9"> 
+                <h3 class="mb-2"> Perfil de {{ user.userName}} </h3>
+
+                {% if canSeeAll %}
+                    <p class="text-muted mb-1"><strong>Provincia: </strong> {{user.province}} </p>
+                    <p class="text-muted mb-1"><strong>Localidad: </strong> {{ user.locality}} </p>
+                    
+                    {% if user.biography %}
+                       <h6 class="mt-3"> Biografía </h6>
+                       <p style="text-align: justify;" > {{ user.biography}} </p>
+                    {% endif %}
+
+                {% elseif follow and follow.status == constant('App\\Entity\\UserFollow::STATUS_PENDING')  %}
+                    <p class="text-muted fst-italic mt-3"> Este perfil es privado. Solicitud de seguimiento pendiente de ser aceptada</p>
+                {% else %}
+                    <p class="text-mited fst-italic mt-3">Este perfil es privado. Solicita seguir a {{ user.userName}} para ver más información</p>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if canSeeAll %}
+           <hr class="my-4">
+           <h5 class="mb-3">Actividades de {{ user.userName}} </h5>
+
+            {% if completedActivities is not empty%}
+                <div class="d-flex flex-wrap justify-content-center">
+                    {% for activity in completedActivities %}
+                        {% set iconKey = activity.categoryActivity.name|lower|replace({'á':'a','é':'e','í':'i','ó':'o','ú':'u',' ':'_', 'ñ':'n'}) %}
+
+                        <div class="text-center p-3 mb-4" style="width: 180px;">
+                            {% if activity.imagesActivity|length > 0 %}
+                                <div class="activity-preview position-relative overflow-hidden rounded-circle mx-auto" style="width: 150px; height: 150px;">
+                                    <a href="{{ path('app_view_activities', {id: activity.id}) }}">
+                                        <img src="{{ asset('uploads/activity_images/' ~ activity.imagesActivity[0].imageUrl) }}"
+                                            class="w-100 h-100 object-fit-cover transition" />
+                                    </a>
+                                </div>
+                            {% else %}
+                                <div class="activity-preview position-relative overflow-hidden rounded-circle mx-auto bg-light d-flex align-items-center justify-content-center"
+                                        style="width: 150px; height: 150px;">
+                                        
+                                        <a href="{{ path('app_view_activities', {id: activity.id}) }}" class="w-100 h-100 d-flex align-items-center justify-content-center text-decoration-none">
+                                                <i class="fas {{ categoryIcons[iconKey]|default('fa-question') }} fa-2x text-muted transition"></i>
+                                        </a>
+                                </div>
+                            {% endif %}
+                            <p class="small mt-2"> {{ activity.nameActivity}} </p>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted fst-italic"> {{user.userName}} aún no ha compartido actividades completadas </p>
+            {% endif %}
+        {% endif %}
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+    {#
+
+    <div class="card p-4">
+        <div class="text-center">
+            <h2 class="mt-3"> Perfil personal de {{ user.userName}} </h2>
+        </div>
+
+        {% if canSeeAll %}
+            <div class="row mt-4">
+                
+                <!--Foto de perfil-->
+                    <div class="col-md-3 text-center">
+                        <img src="{{ asset(user.photo ? 'uploads/profile_photos/' ~ user.photo : 'images/default.png') }}" 
+                            class="img-thumbnail shadow" 
+                            style="width: 200px; height: 200px; object-fit: cover;"/>
+                    </div>
+
+                <!--Actividades-->
+                <div class="col-md-9">
+                    <h5>Actividades completadas.</h5>
+                    {% if completedActivities is not empty %}
+                        <div class="d-flex flex-wrap gap-3">
+                            {% for activity in completedActivities %}
+                                {% set iconKey = activity.categoryActivity.name|lower|replace({'á':'a','é':'e','í':'i','ó':'o','ú':'u',' ':'_', 'ñ':'n'}) %}
+                                    <div class="text-center">
+                                        {% if activity.imagesActivity|length > 0 %}
+                                            <img src="{{ asset('uploads/activity_images/' ~ activity.imagesActivity[0].imageUrl) }}"
+                                                class="rounded-circle"
+                                                style="width: 150px; height: 150px; object-fit: cover;">
+                                            
+                                        {% else %}
+                                            <div class="rounded-circle border bg-light d-flex align-items-center justify-content-center"
+                                                style="width: 150px; height: 150px;">
+                                                <i class="fas {{ categoryIcons[iconKey]|default('fa-question') }} fa-2x text-muted"></i>
+                                            </div>
+                                        {% endif %}
+                                            <p class="small mt-2"> {{ activity.nameActivity}} </p>
+                                            <a href="{{ path('app_view_activities', {id: activity.id}) }}" class="btn btn-outline-primary">Ver actividad</a>
+                                    </div>
+                            {% endfor %}
+                        </div>
+                    {% else %} 
+                    <p class="text-muted fst-italic"> {{ user.name }} aún no ha compartido ninguna actividad completada. </p> 
+                    {% endif %}
+                </div>
+            </div>
+
+            <!--Biografía y datos-->
+            <div class="row">
+                <div class="col-md-8">
+                   <h5 style="margin-top: 10px;">Biografía </h5>
+                   <p style="text-align: justify; margin-top: 10px"> {{ user.biography}} </p>
+                </div>
+
+                <div class="col-md-4">
+                    <h6> Ubicación </h6>
+                    <p><strong>Provincia: </strong> {{ user.province}} </p>
+                    <p><strong>Localidad: </strong> {{ user.locality}} </p>
+                </div>
+            </div>
+
+        {% elseif follow and follow.status == constant('App\\Entity\\UserFollow::STATUS_PENDING') %}
+            <p class="text-muted text-center">Este perfil es privado. Solicitud de seguimiento pendiente de ser aceptada.</p>
+        {% else %}
+            <p class="text-muted text-center">Este perfil es privado. Solicita que te siga para poder ver más.</p>
+        {% endif %}
+        
+        {% if user != app.user %}
+            {% if not follow %}
+                <a href="{{ path('user_follow', {id: user.id}) }}" class="btn btn-primary">Seguir</a>
+            {% endif %}
+        {% endif %}
+        
+    </div><!--cierre card--> #}
+</div><!--cierre container-->
+{% endblock %}

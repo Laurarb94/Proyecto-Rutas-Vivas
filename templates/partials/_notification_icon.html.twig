@@ -1,0 +1,10 @@
+{% set unread = notifications|filter(n => not n.isRead)|length %}
+
+<span class="position-relative me-2">
+    <i class="fas fa-bell"></i>
+    {% if unread > 0 %}
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger notification-badge">
+            {{ unread }}
+        </span>
+    {% endif %}
+</span>
